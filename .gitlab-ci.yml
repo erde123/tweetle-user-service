@@ -1,0 +1,48 @@
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+stages:
+  - build
+  - test
+  - sonarqube-check
+  - deploy
+
+build:
+  stage: build
+  script:
+    - ./gradlew assemble
+  artifacts:
+    paths:
+      - build/libs/*.jar
+
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - ./gradlew test
+
+sonarqube-check:
+  stage: sonarqube-check
+  script:
+    - ./gradlew test jacocoTestReport sonar
+
+docker-build:
+  stage: deploy
+  script:
+    # Stop and remove the existing backend container
+    - docker stop tweetle-user-service-staging || true
+    - docker rm tweetle-user-service-staging || true
+
+    # Ensure the Docker network exists
+    - docker network inspect tweetle-network || docker network create tweetle-network
+
+    # Build the backend Docker image
+    - docker build -t tweetle-user-service .
+
+    # Run the backend container with proper environment variables
+    - docker run -d --name=tweetle-user-service-staging --network=tweetle-network -p 8080:8080 -e spring_profiles_active=staging tweetle-user-service
+  only:
+    - main
+  dependencies:
+    - build
