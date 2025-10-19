@@ -1,0 +1,29 @@
+server:
+  port: 8003
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+spring:
+  application:
+    name: tweetle-user-service
+    security:
+      oauth2:
+        resource server:
+          jwt:
+            issuer-uri: https://dev-vkjc2qc55bwr1ikt.eu.auth0.com/
+            audience: https://tweetle/api
+
+  data:
+    mongodb:
+      uri: mongodb://admin:password@localhost:27017/tweetservice?authSource=admin
+      database: tweetservice
+      username: admin
+      password: password
+      auto-index-creation: true
