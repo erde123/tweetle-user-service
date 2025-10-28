@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -41,7 +40,6 @@ class UserControllerTest {
         testUser.setProfileImageUrl("http://example.com/image.png");
     }
 
-    // GET /api/users
     @Test
     void getAllUsers_WhenSuccessful_ShouldReturnListOfUsers() {
         when(userService.findAll()).thenReturn(Arrays.asList(testUser));
@@ -62,7 +60,6 @@ class UserControllerTest {
         verify(userService, times(1)).findAll();
     }
 
-    // GET /id/{id}
     @Test
     void getUserById_WhenUserExists_ShouldReturnUser() {
         when(userService.findById(1L)).thenReturn(testUser);
@@ -85,7 +82,6 @@ class UserControllerTest {
         verify(userService, times(1)).findById(99L);
     }
 
-    // GET /auth0/{auth0Id}
     @Test
     void getUserByAuth0Id_WhenUserExists_ShouldReturnUser() {
         when(userService.findByAuth0Id("auth0|12345")).thenReturn(testUser);
@@ -108,7 +104,6 @@ class UserControllerTest {
         verify(userService, times(1)).findByAuth0Id("auth0|notfound");
     }
 
-    // DELETE /{id}
     @Test
     void deleteUserById_WhenUserExists_ShouldReturnOk() {
         when(userService.findById(1L)).thenReturn(testUser);
@@ -132,7 +127,6 @@ class UserControllerTest {
         verify(userService, never()).deleteById(anyLong());
     }
 
-    // POST /me
     @Test
     void syncUser_WhenAuth0Matches_ShouldReturnUser() {
         Jwt jwt = mock(Jwt.class);
@@ -160,7 +154,6 @@ class UserControllerTest {
         verify(userService, never()).findOrCreateUser(anyString(), anyString(), anyString(), anyString());
     }
 
-    // PUT /me
     @Test
     void updateProfile_WhenSuccessful_ShouldReturnUpdatedUser() {
         Jwt jwt = mock(Jwt.class);

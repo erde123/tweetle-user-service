@@ -39,7 +39,6 @@ class UserServiceTest {
                 .build();
     }
 
-    // --- findOrCreateUser() ---
     @Test
     void findOrCreateUser_WhenUserExists_ShouldReturnExistingUser() {
         when(userRepository.findByAuth0Id("auth0|12345"))
@@ -68,7 +67,6 @@ class UserServiceTest {
         verify(userRepository, times(1)).save(any(UserEntity.class));
     }
 
-    // --- updateProfile() ---
     @Test
     void updateProfile_WhenUserExists_ShouldUpdateFieldsAndSave() {
         when(userRepository.findByAuth0Id("auth0|12345")).thenReturn(Optional.of(testUser));
@@ -101,7 +99,6 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(UserEntity.class));
     }
 
-    // --- save() ---
     @Test
     void save_ShouldCallRepositorySave() {
         when(userRepository.save(testUser)).thenReturn(testUser);
@@ -111,7 +108,6 @@ class UserServiceTest {
         verify(userRepository, times(1)).save(testUser);
     }
 
-    // --- findAll() ---
     @Test
     void findAll_ShouldReturnListOfUsers() {
         List<UserEntity> expectedUsers = Arrays.asList(testUser);
@@ -123,7 +119,6 @@ class UserServiceTest {
         verify(userRepository, times(1)).findAll();
     }
 
-    // --- findById() ---
     @Test
     void findById_WhenExists_ShouldReturnUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -144,7 +139,6 @@ class UserServiceTest {
         verify(userRepository, times(1)).findById(2L);
     }
 
-    // --- findByAuth0Id() ---
     @Test
     void findByAuth0Id_WhenExists_ShouldReturnUser() {
         when(userRepository.findByAuth0Id("auth0|12345")).thenReturn(Optional.of(testUser));
@@ -165,7 +159,6 @@ class UserServiceTest {
         verify(userRepository, times(1)).findByAuth0Id("auth0|missing");
     }
 
-    // --- deleteById() ---
     @Test
     void deleteById_ShouldCallRepositoryDeleteById() {
         doNothing().when(userRepository).deleteById(1L);
