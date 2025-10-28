@@ -13,23 +13,23 @@ eureka:
 spring:
   application:
     name: tweetle-user-service
-    security:
-      oauth2:
-        resource server:
-          jwt:
-            issuer-uri: https://dev-vkjc2qc55bwr1ikt.eu.auth0.com/
-            audience: https://tweetle/api
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: https://dev-vkjc2qc55bwr1ikt.eu.auth0.com/
+          audiences: https://tweetle/api
 
   datasource:
-    url: jdbc:postgresql://userdb:5432/userservice
+    url: jdbc:postgresql://localhost:5432/userservice
     username: admin
     password: password
     driver-class-name: org.postgresql.Driver
 
-    jpa:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
       hibernate:
-        ddl-auto: update
-      properties:
-        hibernate:
-          dialect: org.hibernate.dialect.PostgreSQLDialect
-      show-sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
