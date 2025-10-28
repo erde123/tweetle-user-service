@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000"})
 @RequestMapping("/api/users")
 public class UserController {
     @Autowired
@@ -22,9 +21,19 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable("id") Long id) {
         UserEntity user = userService.findById(id);
+        if (user == null) {
+            return ResponseEntity.status(404).body("User not found");
+        } else {
+            return ResponseEntity.ok(user);
+        }
+    }
+
+    @GetMapping("/auth0/{auth0Id}")
+    public ResponseEntity<Object> getUserByAuth0Id(@PathVariable("auth0Id") String auth0Id) {
+        UserEntity user = userService.findByAuth0Id(auth0Id);
         if (user == null) {
             return ResponseEntity.status(404).body("User not found");
         } else {
@@ -43,15 +52,27 @@ public class UserController {
         }
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<UserEntity> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+    @PostMapping("/me")
+    public ResponseEntity<UserEntity> syncUser(
+            @RequestBody UserEntity userData,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
         String auth0Id = jwt.getClaimAsString("sub");
-        String email = jwt.getClaimAsString("email");
-        String username = jwt.getClaimAsString("nickname");
 
-        UserEntity user = userService.findOrCreateUser(auth0Id, email, username);
+        if (!auth0Id.equals(userData.getAuth0Id())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        UserEntity user = userService.findOrCreateUser(
+                userData.getAuth0Id(),
+                userData.getEmail(),
+                userData.getUsername(),
+                userData.getProfileImageUrl()
+        );
+
         return ResponseEntity.ok(user);
     }
+
 
     @PutMapping("/me")
     public ResponseEntity<UserEntity> updateProfile(
