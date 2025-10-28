@@ -1,0 +1,10 @@
+CREATE TABLE users (
+   id BIGSERIAL PRIMARY KEY,
+   auth0id VARCHAR(255),
+   username VARCHAR(50) NOT NULL UNIQUE,
+   email VARCHAR(100) NOT NULL UNIQUE,
+   bio TEXT,
+   profileimageurl VARCHAR(255),
+   roles VARCHAR(50) DEFAULT 'USER',
+   createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
