@@ -1,8 +1,8 @@
 package nl.fontys.tweetleuserservice.persistence.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import nl.fontys.tweetleuserservice.domain.RoleEnum;
 
 import java.util.Date;
 
@@ -18,23 +18,25 @@ public class UserEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column
+    @Column(name = "auth0id")
     private String auth0Id;
 
-    @NotBlank
     @Column(name= "username")
     private String username;
 
-    @NotBlank
     @Column(name = "email")
     private String email;
 
     @Column(name = "bio")
     private String bio;
 
-    @Column(name = "profileImageUrl")
+    @Column(name = "profileimageurl")
     private String profileImageUrl;
 
-    @Column(name = "createdAt")
+    @Column(name = "roles")
+    @Enumerated(EnumType.STRING)
+    private RoleEnum role;
+
+    @Column(name = "createdat")
     private Date createdAt;
 }
