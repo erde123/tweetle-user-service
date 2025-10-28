@@ -41,7 +41,7 @@ docker-build:
     - docker build -t tweetle-user-service .
 
     # Run the backend container with proper environment variables
-    - docker run -d --name=tweetle-user-service-staging --network=tweetle-network -p 8080:8080 -e spring_profiles_active=staging tweetle-user-service
+    - docker run -d --name=tweetle-user-service-staging --network=tweetle-network -p 8003:8003 tweetle-user-service
   only:
     - main
   dependencies:
