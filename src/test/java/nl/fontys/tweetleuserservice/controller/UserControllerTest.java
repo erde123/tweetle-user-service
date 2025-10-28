@@ -166,6 +166,6 @@ class UserControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(testUser, response.getBody());
         verify(userService, times(1))
-                .updateProfile(eq("auth0|12345"), eq(testUser));
+                .updateProfile("auth0|12345", testUser);
     }
 }

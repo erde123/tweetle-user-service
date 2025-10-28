@@ -16,6 +16,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    String errorText = "User not found";
+
     @GetMapping
     public ResponseEntity<List<UserEntity>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
@@ -25,7 +27,7 @@ public class UserController {
     public ResponseEntity<Object> getUserById(@PathVariable("id") Long id) {
         UserEntity user = userService.findById(id);
         if (user == null) {
-            return ResponseEntity.status(404).body("User not found");
+            return ResponseEntity.status(404).body(errorText);
         } else {
             return ResponseEntity.ok(user);
         }
@@ -35,7 +37,7 @@ public class UserController {
     public ResponseEntity<Object> getUserByAuth0Id(@PathVariable("auth0Id") String auth0Id) {
         UserEntity user = userService.findByAuth0Id(auth0Id);
         if (user == null) {
-            return ResponseEntity.status(404).body("User not found");
+            return ResponseEntity.status(404).body(errorText);
         } else {
             return ResponseEntity.ok(user);
         }
@@ -45,7 +47,7 @@ public class UserController {
     public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id) {
         UserEntity user = userService.findById(id);
         if (user == null) {
-            return ResponseEntity.status(404).body("User not found");
+            return ResponseEntity.status(404).body(errorText);
         } else {
             userService.deleteById(id);
             return ResponseEntity.ok("User deleted successfully");
