@@ -27,21 +27,20 @@ sonarqube-check:
   script:
     - ./gradlew test jacocoTestReport sonar
 
-docker-build:
+docker-deploy:
   stage: deploy
   script:
-    # Stop and remove the existing backend container
-    - docker stop tweetle-user-service-staging || true
-    - docker rm tweetle-user-service-staging || true
+    # Stop and remove any existing containers
+    - docker compose down || true
 
-    # Ensure the Docker network exists
+    # Ensure the Docker network exists (optional, if already defined in compose)
     - docker network inspect tweetle-network || docker network create tweetle-network
 
-    # Build the backend Docker image
-    - docker build -t tweetle-user-service .
+    # Build and start all services in detached mode
+    - docker compose up -d --build
 
-    # Run the backend container with proper environment variables
-    - docker run -d --name=tweetle-user-service-staging --network=tweetle-network -p 8003:8003 tweetle-user-service
+    # Optionally check container status
+    - docker ps
   only:
     - main
   dependencies:
