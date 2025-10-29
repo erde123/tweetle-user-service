@@ -1,0 +1,41 @@
+version: '3'
+services:
+
+ user-postgres:
+   image: postgres:latest
+   container_name:  user-postgres
+   restart: always
+   volumes:
+     - user-data:/var/lib/postgresql/data
+   ports:
+     - "5432:5432"
+   expose:
+     - 5432
+   environment:
+     POSTGRES_USER: root
+     POSTGRES_PASSWORD: admin
+     POSTGRES_DB: userdb
+   networks:
+     - tweetle-network
+
+ user-service:
+   build: .
+   restart: on-failure
+   container_name: user-api
+   environment:
+     USER_DB_USER: root
+     USER_DB_PASSWORD: admin
+     USER_DB_URL: jdbc:postgresql://user-postgres:5432/userdb?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+   ports:
+     - "8003:8003"
+   depends_on:
+     - user-postgres
+   networks:
+     - tweetle-network
+
+volumes:
+  user-data:
+
+networks:
+  tweetle-network:
+    driver: bridge
