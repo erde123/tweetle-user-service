@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM gradle:8.8-jdk21
 
 ARG JAR_FILE=build/libs/*.jar
 
