@@ -1,0 +1,41 @@
+server:
+  port: 8003
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+spring:
+  application:
+    name: tweetle-user-service
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: https://dev-vkjc2qc55bwr1ikt.eu.auth0.com/
+          audiences: https://tweetle/api
+
+  datasource:
+    url: jdbc:postgresql://user-postgres:5432/userdb?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+    show-sql: true
+
+spring.sql:
+  init:
+    platform: postgres
