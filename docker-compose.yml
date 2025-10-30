@@ -26,6 +26,10 @@ services:
      USER_DB_USER: root
      USER_DB_PASSWORD: admin
      USER_DB_URL: jdbc:postgresql://user-postgres:5432/userdb?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+     SPRING_APPLICATION_NAME: tweetle-user-service
+     SERVER_PORT: 8003
+     EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+     EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
    ports:
      - "8003:8003"
    depends_on:
