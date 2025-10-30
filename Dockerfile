@@ -1,9 +1,11 @@
 FROM gradle:8.8-jdk21
 
-ARG JAR_FILE=build/libs/*.jar
-
-COPY ${JAR_FILE} app.jar
+WORKDIR /opt/app
 
 EXPOSE 8003
 
-ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/app.jar"]
+COPY build/libs/tweetle-user-service-0.0.1-SNAPSHOT.jar ./
+
+ENV SPRING_PROFILES_ACTIVE=docker
+
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar tweetle-user-service-0.0.1-SNAPSHOT.jar"]
