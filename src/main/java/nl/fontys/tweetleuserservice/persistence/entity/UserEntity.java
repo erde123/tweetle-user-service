@@ -18,7 +18,7 @@ public class UserEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "auth0id")
+    @Column(unique = true, nullable = false)
     private String auth0Id;
 
     @Column(name= "username")

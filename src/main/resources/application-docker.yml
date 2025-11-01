@@ -36,6 +36,6 @@ spring:
           time_zone: UTC
     show-sql: true
 
-spring.sql:
-  init:
-    platform: postgres
+  sql:
+    init:
+      platform: postgres
