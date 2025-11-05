@@ -15,7 +15,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(e -> Customizer.withDefaults())
-                .csrf(e -> Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(req -> req.requestMatchers(
                                 "/api/users/**",
                                 "/v3/api-docs/**",
