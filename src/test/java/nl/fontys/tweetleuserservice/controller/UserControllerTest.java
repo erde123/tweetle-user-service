@@ -1,6 +1,9 @@
 package nl.fontys.tweetleuserservice.controller;
 
+import nl.fontys.tweetleuserservice.business.service.PublishService;
 import nl.fontys.tweetleuserservice.business.service.UserService;
+import nl.fontys.tweetleuserservice.domain.UserSyncResult;
+import nl.fontys.tweetleuserservice.domain.UserEvent;
 import nl.fontys.tweetleuserservice.persistence.entity.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,9 @@ class UserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private PublishService publishService;
 
     @InjectMocks
     private UserController userController;
@@ -131,16 +137,18 @@ class UserControllerTest {
     void syncUser_WhenAuth0Matches_ShouldReturnUser() {
         Jwt jwt = mock(Jwt.class);
         when(jwt.getClaimAsString("sub")).thenReturn("auth0|12345");
-        when(userService.findOrCreateUser(anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(testUser);
+        UserSyncResult creationResult = new UserSyncResult(testUser, true);
+        when(userService.findOrCreateUserWithStatus(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(creationResult);
 
         ResponseEntity<UserEntity> response = userController.syncUser(testUser, jwt);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(testUser, response.getBody());
         verify(userService, times(1))
-                .findOrCreateUser(testUser.getAuth0Id(), testUser.getEmail(),
+                .findOrCreateUserWithStatus(testUser.getAuth0Id(), testUser.getEmail(),
                         testUser.getUsername(), testUser.getProfileImageUrl());
+        verify(publishService, times(1)).publishUserRegistered(any(UserEvent.class));
     }
 
     @Test
@@ -151,7 +159,23 @@ class UserControllerTest {
         ResponseEntity<UserEntity> response = userController.syncUser(testUser, jwt);
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(userService, never()).findOrCreateUser(anyString(), anyString(), anyString(), anyString());
+        verify(userService, never()).findOrCreateUserWithStatus(anyString(), anyString(), anyString(), anyString());
+        verify(publishService, never()).publishUserRegistered(any(UserEvent.class));
+    }
+
+    @Test
+    void syncUser_WhenUserAlreadyExists_ShouldNotRepublishRegistration() {
+        Jwt jwt = mock(Jwt.class);
+        when(jwt.getClaimAsString("sub")).thenReturn("auth0|12345");
+        UserSyncResult existingResult = new UserSyncResult(testUser, false);
+        when(userService.findOrCreateUserWithStatus(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(existingResult);
+
+        ResponseEntity<UserEntity> response = userController.syncUser(testUser, jwt);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(testUser, response.getBody());
+        verify(publishService, never()).publishUserRegistered(any(UserEvent.class));
     }
 
     @Test

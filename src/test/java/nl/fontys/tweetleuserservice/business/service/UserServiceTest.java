@@ -1,5 +1,6 @@
 package nl.fontys.tweetleuserservice.business.service;
 
+import nl.fontys.tweetleuserservice.domain.UserSyncResult;
 import nl.fontys.tweetleuserservice.persistence.entity.UserEntity;
 import nl.fontys.tweetleuserservice.persistence.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,36 @@ class UserServiceTest {
         );
 
         assertNotNull(result);
+        verify(userRepository, times(1)).findByAuth0Id("auth0|new");
+        verify(userRepository, times(1)).save(any(UserEntity.class));
+    }
+
+    @Test
+    void findOrCreateUserWithStatus_WhenUserExists_ShouldReturnFlagFalse() {
+        when(userRepository.findByAuth0Id("auth0|12345"))
+                .thenReturn(Optional.of(testUser));
+
+        UserSyncResult result = userService.findOrCreateUserWithStatus(
+                "auth0|12345", "test@example.com", "testUser", "http://example.com/pic.jpg"
+        );
+
+        assertEquals(testUser, result.user());
+        assertFalse(result.newlyCreated());
+        verify(userRepository, times(1)).findByAuth0Id("auth0|12345");
+        verify(userRepository, never()).save(any(UserEntity.class));
+    }
+
+    @Test
+    void findOrCreateUserWithStatus_WhenUserCreated_ShouldReturnFlagTrue() {
+        when(userRepository.findByAuth0Id("auth0|new")).thenReturn(Optional.empty());
+        when(userRepository.save(any(UserEntity.class))).thenReturn(testUser);
+
+        UserSyncResult result = userService.findOrCreateUserWithStatus(
+                "auth0|new", "new@example.com", "newUser", "http://example.com/new.jpg"
+        );
+
+        assertEquals(testUser, result.user());
+        assertTrue(result.newlyCreated());
         verify(userRepository, times(1)).findByAuth0Id("auth0|new");
         verify(userRepository, times(1)).save(any(UserEntity.class));
     }
@@ -160,11 +191,9 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteById_ShouldCallRepositoryDeleteById() {
-        doNothing().when(userRepository).deleteById(1L);
+    void deleteById_ShouldThrowWhenUserNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        userService.deleteById(1L);
-
-        verify(userRepository, times(1)).deleteById(1L);
+        assertThrows(RuntimeException.class, () -> userService.deleteById(1L));
     }
 }
