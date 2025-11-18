@@ -1,6 +1,9 @@
 package nl.fontys.tweetleuserservice.controller;
 
+import nl.fontys.tweetleuserservice.business.service.PublishService;
 import nl.fontys.tweetleuserservice.business.service.UserService;
+import nl.fontys.tweetleuserservice.domain.UserEvent;
+import nl.fontys.tweetleuserservice.domain.UserSyncResult;
 import nl.fontys.tweetleuserservice.persistence.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,9 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PublishService publishService;
 
     String errorText = "User not found";
 
@@ -50,6 +56,7 @@ public class UserController {
             return ResponseEntity.status(404).body(errorText);
         } else {
             userService.deleteById(id);
+            publishService.publishUserDeleted(new UserEvent(user.getId(), user.getUsername(), "DELETED"));
             return ResponseEntity.ok("User deleted successfully");
         }
     }
@@ -65,12 +72,19 @@ public class UserController {
             return ResponseEntity.status(403).build();
         }
 
-        UserEntity user = userService.findOrCreateUser(
+        UserSyncResult result = userService.findOrCreateUserWithStatus(
                 userData.getAuth0Id(),
                 userData.getEmail(),
                 userData.getUsername(),
                 userData.getProfileImageUrl()
         );
+
+        UserEntity user = result.user();
+
+        if (result.newlyCreated()) {
+            publishService.publishUserRegistered(
+                    new UserEvent(user.getId(), user.getUsername(), user.getProfileImageUrl()));
+        }
 
         return ResponseEntity.ok(user);
     }
@@ -82,6 +96,7 @@ public class UserController {
             @RequestBody UserEntity updatedUser) {
         String auth0Id = jwt.getClaimAsString("sub");
         UserEntity user = userService.updateProfile(auth0Id, updatedUser);
+        publishService.publishUserUpdated(new UserEvent(user.getId(), user.getUsername(), user.getProfileImageUrl()));
         return ResponseEntity.ok(user);
     }
 }
