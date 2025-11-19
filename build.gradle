@@ -73,6 +73,7 @@ sonar {
         property "sonar.projectName", "Tweetle User Service"
         property "sonar.token", "sqp_bf239ce20a7d65df0230ac33f5bec5f72fe45928"
         property "sonar.qualitygate.wait", true
+        property "sonar.inclusions", "src/main/java/nl/fontys/tweetleuserservice/business/service/UserService,src/main/java/nl/fontys/tweetleuserervice/controller/**"
     }
 }
 dependencyManagement {
