@@ -4,6 +4,7 @@ variables:
 stages:
   - build
   - test
+  - security
   - sonarqube-check
   - deploy
 
@@ -21,6 +22,36 @@ test:
     - build
   script:
     - ./gradlew test
+zap-security-scan:
+  stage: security
+  dependencies:
+    - build
+  script:
+    - docker compose down || true
+    - docker compose up -d --build
+
+    - echo "Waiting for Spring Boot to start..."
+    - echo "Waiting for API to start..."
+    - for i in {1..60}; do
+      if docker run --rm --network=tweetle-network curlimages/curl http://user-api:8003 -s > /dev/null; then
+      echo "API is up!";
+      break;
+      fi;
+      echo "API not ready ($i)...";
+      sleep 2;
+      done
+
+    - export TARGET_URL="http://user-api:8003"
+
+    - mkdir -p zap-reports
+
+    - docker run --rm --network=tweetle-network -v "$(pwd)/zap-reports:/zap/wrk" zaproxy/zap-weekly zap-baseline.py -t "$TARGET_URL" -r zap-report.html -J zap-report.json || true
+
+  artifacts:
+    paths:
+      - zap-reports/zap-report.html
+      - zap-reports/zap-report.json
+    expire_in: 1 week
 
 sonarqube-check:
   stage: sonarqube-check
