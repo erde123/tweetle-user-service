@@ -6,6 +6,7 @@ import nl.fontys.tweetleuserservice.domain.UserEvent;
 import nl.fontys.tweetleuserservice.domain.UserSyncResult;
 import nl.fontys.tweetleuserservice.persistence.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -49,6 +50,12 @@ public class UserController {
         }
     }
 
+    @GetMapping("/user/{username}")
+    public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
+        return userService.findByUsername(username).<ResponseEntity<?>>map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"));
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id) {
         UserEntity user = userService.findById(id);
@@ -62,28 +69,19 @@ public class UserController {
     }
 
     @PostMapping("/me")
-    public ResponseEntity<UserEntity> syncUser(
-            @RequestBody UserEntity userData,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
+    public ResponseEntity<UserEntity> syncUser(@RequestBody UserEntity userData, @AuthenticationPrincipal Jwt jwt) {
         String auth0Id = jwt.getClaimAsString("sub");
 
         if (!auth0Id.equals(userData.getAuth0Id())) {
             return ResponseEntity.status(403).build();
         }
 
-        UserSyncResult result = userService.findOrCreateUserWithStatus(
-                userData.getAuth0Id(),
-                userData.getEmail(),
-                userData.getUsername(),
-                userData.getProfileImageUrl()
-        );
+        UserSyncResult result = userService.findOrCreateUserWithStatus(userData.getAuth0Id(), userData.getEmail(), userData.getUsername(), userData.getProfileImageUrl());
 
         UserEntity user = result.user();
 
         if (result.newlyCreated()) {
-            publishService.publishUserRegistered(
-                    new UserEvent(user.getId(), user.getUsername(), user.getProfileImageUrl()));
+            publishService.publishUserRegistered(new UserEvent(user.getId(), user.getUsername(), user.getProfileImageUrl()));
         }
 
         return ResponseEntity.ok(user);
@@ -91,9 +89,7 @@ public class UserController {
 
 
     @PutMapping("/me")
-    public ResponseEntity<UserEntity> updateProfile(
-            @AuthenticationPrincipal Jwt jwt,
-            @RequestBody UserEntity updatedUser) {
+    public ResponseEntity<UserEntity> updateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody UserEntity updatedUser) {
         String auth0Id = jwt.getClaimAsString("sub");
         UserEntity user = userService.updateProfile(auth0Id, updatedUser);
         publishService.publishUserUpdated(new UserEvent(user.getId(), user.getUsername(), user.getProfileImageUrl()));

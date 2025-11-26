@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -67,6 +68,10 @@ public class UserService {
     public List<UserEntity> findAll() { return userRepository.findAll(); }
 
     public UserEntity findById (Long id) { return userRepository.findById(id).orElse(null); }
+
+    public Optional<UserEntity> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 
     public UserEntity findByAuth0Id (String auth0Id) { return userRepository.findByAuth0Id(auth0Id).orElse(null); }
 
