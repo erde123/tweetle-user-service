@@ -55,3 +55,12 @@ auth0:
   clientId: ${AUTH0_CLIENT_ID:7I7v2p9IAvmwm0L3Aunc0NiMZkpAI1aQ}
   clientSecret: ${AUTH0_CLIENT_SECRET:sZkd-oeTWVNFddBMbYISFxCKS0RA-x84IFGxi1-XztYXDALQt3Q_eVQrNfRztM7i}
   audience: ${AUTH0_AUDIENCE:https://tweetle/api}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+  endpoint:
+    prometheus:
+      enabled: true
