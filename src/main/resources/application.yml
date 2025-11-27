@@ -46,8 +46,8 @@ rabbitmq:
 
 auth0:
   domain: ${AUTH0_DOMAIN:dev-vkjc2qc55bwr1ikt.eu.auth0.com}
-  clientId: ${AUTH0_CLIENT_ID:7I7v2p9IAvmwm0L3Aunc0NiMZkpAI1aQ}
-  clientSecret: ${AUTH0_CLIENT_SECRET:sZkd-oeTWVNFddBMbYISFxCKS0RA-x84IFGxi1-XztYXDALQt3Q_eVQrNfRztM7i}
+  clientId: ${AUTH0_CLIENT_ID:jqnVIuJ5fy7q3nV28BuYf7dgpGQUut52}
+  clientSecret: ${AUTH0_CLIENT_SECRET:Ox3DtIPhfzuxz3jqKVyvMnzdGrmm_rttFlJdZiY0i-1H1Pcr7APNWRm0ODJ5p5tK}
   audience: ${AUTH0_AUDIENCE:https://tweetle/api}
 
 management:
